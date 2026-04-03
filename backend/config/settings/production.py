@@ -47,7 +47,13 @@ CORS_ALLOW_CREDENTIALS = True
 # STATIC FILES
 # =============================================================================
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Carpeta final para producción
+
+# Aquí indicamos dónde buscar estáticos adicionales
+STATICFILES_DIRS = [
+    BASE_DIR.parent / 'frontend' / 'build' / 'static',  # Ruta al build del frontend
+]
 
 
 # =============================================================================
