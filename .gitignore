@@ -1,0 +1,51 @@
+# Archivos de Python generados automáticamente
+*.pyc
+__pycache__/
+# Ignora tu entorno virtual completo
+venv/   
+.venv/
+# Archivos de entorno (donde guardarías contraseñas de BD si no estuvieran hardcodeadas)
+.env    
+
+# Archivos de base de datos de Django (SQLite por defecto)
+db.sqlite3
+
+# Archivos estáticos y de medios (si se usan)
+/staticfiles/
+/static/
+/media/
+
+#archivos extra
+propuesta_expansion_viveroapp.txt
+
+
+# Archivos de configuración locales que pueden contener secretos
+# Si tu settings.py es modular, podrías ignorar archivos de settings locales
+# Por ejemplo: myproject/local_settings.py
+# Aunque en tu caso, las credenciales están en settings.py principal,
+# en un entorno de producción, las sacarías a variables de entorno o un archivo ignorado.
+
+# Logs
+*.log
+logs/
+
+# Editores y IDEs
+.idea/         # Directorios de PyCharm/IntelliJ
+.vscode/       # Directorios de VS Code
+.DS_Store      # Archivos de macOS
+npm-debug.log* # Si alguna vez usas npm aquí
+
+# Cobertura de tests
+htmlcov/
+.coverage
+.tox/
+.pytest_cache/
+
+# Documentación generada
+docs/_build/
+
+# Plan del proyecto
+Plan del proyecto
+stitch_guerreros_vc_gesti_n.zip
+vistas/
+
