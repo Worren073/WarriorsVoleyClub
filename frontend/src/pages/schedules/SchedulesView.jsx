@@ -1,30 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import DashboardLayout from '../../components/layout/DashboardLayout';
+import Modal from '../../components/ui/Modal';
+import ScheduleForm from '../../components/forms/ScheduleForm';
+import Swal from 'sweetalert2';
+import { useAuth } from '../../context/AuthContext';
 
 const SchedulesView = () => {
+  const { user } = useAuth();
   const [weekly, setWeekly] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchSchedules = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/schedules/weekly/');
+      setWeekly(response.data);
+    } catch (error) {
+      console.error('Error fetching schedules:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchSchedules = async () => {
-      try {
-        const response = await api.get('/schedules/weekly/');
-        setWeekly(response.data);
-      } catch (error) {
-        console.error('Error fetching schedules:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchSchedules();
   }, []);
 
+  const handleSave = async (formData) => {
+    try {
+      await api.post('/schedules/', formData);
+      Swal.fire({
+        icon: 'success',
+        title: 'Horario Asignado',
+        text: 'La sesión se ha programado correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      setIsModalOpen(false);
+      fetchSchedules();
+    } catch (error) {
+      const errorMsg = error.response?.data?.non_field_errors?.[0] || 
+                       error.response?.data?.detail ||
+                       "No se pudo guardar el horario. Verifica si hay choques.";
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de Validación',
+        text: errorMsg,
+      });
+    }
+  };
+
   const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+  const canManageSchedules = user?.role === 'administrador' || user?.role === 'staff';
 
   return (
     <DashboardLayout title="Horarios de Entrenamiento">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-6 animate-in slide-in-from-bottom duration-500">
+      <div className="space-y-8">
+        {/* Actions Bar */}
+        {canManageSchedules && (
+          <div className="flex justify-end items-center bg-white p-4 rounded-2xl shadow-sm border border-zinc-100">
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="btn-primary flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined">add_task</span>
+              Asignar Nuevo Horario
+            </button>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-6 animate-in slide-in-from-bottom duration-500">
         {days.map((day) => (
           <div key={day} className="flex flex-col space-y-4">
             <div className="bg-primary text-white p-4 rounded-xl shadow-lg flex items-center justify-between border-b border-white/10">
@@ -67,6 +116,18 @@ const SchedulesView = () => {
           </div>
         ))}
       </div>
+      </div>
+
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        title="Asignar Nuevo Horario"
+      >
+        <ScheduleForm 
+          onSubmit={handleSave} 
+          onCancel={() => setIsModalOpen(false)} 
+        />
+      </Modal>
     </DashboardLayout>
   );
 };

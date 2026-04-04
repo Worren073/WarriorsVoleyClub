@@ -4,7 +4,7 @@ import Topbar from './Topbar';
 import PublicNavbar from './PublicNavbar';
 import { useAuth } from '../../context/AuthContext';
 
-const DashboardLayout = ({ children, title = 'Dashboard' }) => {
+const DashboardLayout = ({ children, title = 'Dashboard', headerActions }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuth();
 
@@ -14,10 +14,11 @@ const DashboardLayout = ({ children, title = 'Dashboard' }) => {
       <div className="min-h-screen bg-surface-container-low font-body selection:bg-secondary selection:text-white">
         <PublicNavbar />
         <main className="pt-20 px-4 md:px-8 max-w-7xl mx-auto animate-in fade-in duration-500">
-          <header className="mb-8">
+          <header className="mb-8 flex justify-between items-center">
             <h1 className="font-headline text-3xl font-black text-primary tracking-tight uppercase italic underline decoration-secondary decoration-4 underline-offset-8">
               {title}
             </h1>
+            {headerActions}
           </header>
           {children}
         </main>
@@ -39,7 +40,7 @@ const DashboardLayout = ({ children, title = 'Dashboard' }) => {
             <span className="material-symbols-outlined">menu</span>
           </button>
           <div className="flex-1">
-            <Topbar title={title} />
+            <Topbar title={title} actions={headerActions} />
           </div>
         </div>
         

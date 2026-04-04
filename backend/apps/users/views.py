@@ -79,8 +79,9 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
 class UserListView(generics.ListAPIView):
     """
-    List all users. Only accessible by administrators.
+    List all users. Only accessible by administrators and staff.
     """
     serializer_class = UserSerializer
-    permission_classes = [IsAdministrador]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
+    filterset_fields = ['role']

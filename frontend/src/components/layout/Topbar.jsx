@@ -1,13 +1,14 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 
-const Topbar = ({ title }) => {
+const Topbar = ({ title, actions }) => {
   const { user } = useAuth();
 
   return (
     <header className="h-20 bg-white border-b border-zinc-100 px-8 flex items-center justify-between sticky top-0 z-40">
       <div className="flex items-center gap-4">
         <h1 className="font-headline text-2xl font-black text-primary tracking-tight uppercase italic">{title}</h1>
+        {actions && <div className="ml-4 flex items-center">{actions}</div>}
       </div>
 
       <div className="flex items-center gap-6">
