@@ -5,10 +5,13 @@ class Competition(models.Model):
     """Competiciones y torneos."""
 
     class CompType(models.TextChoices):
+        ESTADAL = 'estadal', 'Estadal'
         LIGA = 'liga', 'Liga'
-        TORNEO = 'torneo', 'Torneo'
-        AMISTOSO = 'amistoso', 'Amistoso'
-        INVITACIONAL = 'invitacional', 'Invitacional'
+        COPA = 'copa', 'Copa'
+        VIAJE = 'viaje', 'Viaje'
+        ZONAL = 'zonal', 'Zonal'
+        NACIONAL = 'nacional', 'Nacional'
+        INTERNACIONAL = 'internacional', 'Internacional'
 
     class Phase(models.TextChoices):
         FASE_GRUPOS = 'fase_grupos', 'Fase de Grupos'
@@ -19,10 +22,17 @@ class Competition(models.Model):
         REGULAR = 'regular', 'Temporada Regular'
 
     name = models.CharField(max_length=200, verbose_name='Nombre')
+    category = models.ForeignKey(
+        'athletes.Category',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='competitions',
+        verbose_name='Categoría',
+    )
     competition_type = models.CharField(
         max_length=20,
         choices=CompType.choices,
-        default=CompType.TORNEO,
+        default=CompType.LIGA,
         verbose_name='Tipo',
     )
     phase = models.CharField(
@@ -31,11 +41,42 @@ class Competition(models.Model):
         default=Phase.REGULAR,
         verbose_name='Fase',
     )
+    coach_in_charge = models.ForeignKey(
+        'users.CustomUser',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='led_competitions',
+        verbose_name='Entrenador Encargado',
+    )
+    assistant = models.ForeignKey(
+        'users.CustomUser',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assisted_competitions',
+        verbose_name='Asistente',
+    )
     start_date = models.DateField(verbose_name='Fecha de Inicio')
     end_date = models.DateField(null=True, blank=True, verbose_name='Fecha de Fin')
-    location = models.CharField(max_length=200, blank=True, verbose_name='Sede')
+    location = models.CharField(max_length=200, blank=True, verbose_name='Sede/Ubicación')
     description = models.TextField(blank=True, verbose_name='Descripción')
     is_featured = models.BooleanField(default=False, verbose_name='Evento Destacado')
+
+    # Roster management
+    roster = models.ManyToManyField(
+        'athletes.Athlete',
+        related_name='competitions',
+        blank=True,
+        verbose_name='Roster',
+    )
+    captain = models.ForeignKey(
+        'athletes.Athlete',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='captained_competitions',
+        verbose_name='Capitán',
+    )
 
     # Audit
     created_at = models.DateTimeField(auto_now_add=True)
@@ -99,6 +140,15 @@ class Match(models.Model):
         choices=Competition.Phase.choices,
         blank=True,
         verbose_name='Fase',
+    )
+    set_points = models.JSONField(default=list, blank=True, verbose_name='Puntos por Set')
+    mvp = models.ForeignKey(
+        'athletes.Athlete',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='match_mvps',
+        verbose_name='Atleta Relevante',
     )
     notes = models.TextField(blank=True, verbose_name='Notas')
 

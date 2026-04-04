@@ -31,7 +31,7 @@ const DashboardLayout = ({ children, title = 'Dashboard', headerActions }) => {
     <div className="min-h-screen bg-surface-container-low flex font-body selection:bg-secondary selection:text-white">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
-      <main className="flex-1 lg:ml-64 min-h-screen flex flex-col transition-all duration-300">
+      <main className="flex-1 lg:ml-20 min-h-screen flex flex-col transition-all duration-300">
         <div className="flex items-center">
           <button 
             onClick={() => setIsSidebarOpen(true)}
