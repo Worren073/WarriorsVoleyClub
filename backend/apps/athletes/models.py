@@ -38,15 +38,32 @@ class Athlete(models.Model):
         SUSPENDIDO = 'suspendido', 'Suspendido'
         RETIRADO = 'retirado', 'Retirado'
 
+    class Gender(models.TextChoices):
+        MASCULINO = 'masculino', 'Masculino'
+        FEMENINO = 'femenino', 'Femenino'
+
     # Identification
     athlete_id = models.CharField(
         max_length=20,
         unique=True,
+        blank=True,
         verbose_name='ID de Atleta',
-        help_text='Formato: GVC-XXXX',
+        help_text='Generado automáticamente: GVC-XXXX',
     )
     first_name = models.CharField(max_length=100, verbose_name='Nombre')
     last_name = models.CharField(max_length=100, verbose_name='Apellido')
+    jersey_number = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Dorsal',
+        help_text='Número de camiseta (1-99)',
+    )
+    gender = models.CharField(
+        max_length=15,
+        choices=Gender.choices,
+        default=Gender.MASCULINO,
+        verbose_name='Género',
+    )
     photo = models.ImageField(
         upload_to='athletes/',
         blank=True,
@@ -108,6 +125,17 @@ class Athlete(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.athlete_id})"
+
+    def save(self, *args, **kwargs):
+        if not self.athlete_id:
+            # Obtener el último ID numérico
+            last_athlete = Athlete.objects.all().order_by('id').last()
+            if not last_athlete:
+                next_id = 1
+            else:
+                next_id = last_athlete.id + 1
+            self.athlete_id = f"GVC-{next_id:04d}"
+        super().save(*args, **kwargs)
 
     @property
     def full_name(self):

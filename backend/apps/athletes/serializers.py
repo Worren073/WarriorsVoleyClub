@@ -20,8 +20,8 @@ class AthleteListSerializer(serializers.ModelSerializer):
         model = Athlete
         fields = [
             'id', 'athlete_id', 'first_name', 'last_name', 'full_name',
-            'photo', 'category', 'category_name', 'status', 'status_display',
-            'performance', 'date_joined',
+            'jersey_number', 'gender', 'photo', 'category', 'category_name', 
+            'status', 'status_display', 'performance', 'date_joined',
         ]
 
 
@@ -35,13 +35,13 @@ class AthleteSerializer(serializers.ModelSerializer):
         model = Athlete
         fields = [
             'id', 'athlete_id', 'first_name', 'last_name', 'full_name',
-            'photo', 'date_of_birth', 'phone', 'email',
+            'jersey_number', 'gender', 'photo', 'date_of_birth', 'phone', 'email',
             'emergency_contact', 'emergency_phone',
             'category', 'category_name', 'status', 'status_display',
             'date_joined', 'performance', 'notes',
             'created_by', 'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'athlete_id', 'created_by', 'created_at', 'updated_at']
 
     def create(self, validated_data):
         validated_data['created_by'] = self.context['request'].user

@@ -39,19 +39,31 @@ const AthleteList = () => {
     fetchAthletes();
   }, [search, categoryFilter, statusFilter]);
 
-  const handleSave = async (formData) => {
+  const handleSave = async (data) => {
     try {
+      const formData = new FormData();
+      // Mapear todos los campos al FormData
+      Object.keys(data).forEach(key => {
+        if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+
       if (selectedAthlete) {
-        await api.put(`/athletes/${selectedAthlete.id}/`, formData);
+        await api.put(`/athletes/${selectedAthlete.id}/`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         Swal.fire({ icon: 'success', title: 'Atleta Actualizado', timer: 1500, showConfirmButton: false });
       } else {
-        await api.post('/athletes/', formData);
+        await api.post('/athletes/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         Swal.fire({ icon: 'success', title: 'Atleta Registrado', timer: 1500, showConfirmButton: false });
       }
       setIsModalOpen(false);
       fetchAthletes();
     } catch (error) {
-      // Error is handled globally by axios interceptor
+      console.error('Error saving athlete:', error);
     }
   };
 
@@ -125,7 +137,7 @@ const AthleteList = () => {
               <option value="5">U20 Élite</option>
             </select>
           </div>
-          <button 
+          <button
             onClick={openAddModal}
             className="btn-primary flex items-center gap-2"
           >
@@ -145,10 +157,10 @@ const AthleteList = () => {
                 <thead>
                   <tr className="bg-zinc-50 border-b border-zinc-100">
                     <th className="px-8 py-4 text-left font-headline text-xs font-black text-zinc-500 uppercase tracking-widest italic">ID</th>
+                    <th className="px-8 py-4 text-left font-headline text-xs font-black text-zinc-500 uppercase tracking-widest italic text-center">#</th>
                     <th className="px-8 py-4 text-left font-headline text-xs font-black text-zinc-500 uppercase tracking-widest italic">Atleta</th>
                     <th className="px-8 py-4 text-left font-headline text-xs font-black text-zinc-500 uppercase tracking-widest italic">Categoría</th>
                     <th className="px-8 py-4 text-left font-headline text-xs font-black text-zinc-500 uppercase tracking-widest italic">Estado</th>
-                    <th className="px-8 py-4 text-left font-headline text-xs font-black text-zinc-500 uppercase tracking-widest italic">Rendimiento</th>
                     <th className="px-8 py-4 text-right font-headline text-xs font-black text-zinc-500 uppercase tracking-widest italic">Acciones</th>
                   </tr>
                 </thead>
@@ -156,6 +168,18 @@ const AthleteList = () => {
                   {athletes.map((athlete) => (
                     <tr key={athlete.id} className="hover:bg-zinc-50/50 transition-colors group">
                       <td className="px-8 py-4 font-body text-sm font-bold text-zinc-500 italic">{athlete.athlete_id}</td>
+                      <td className="px-8 py-4 text-center">
+                        {athlete.jersey_number ? (
+                          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-headline font-black text-sm border-2 ${athlete.gender === 'femenino'
+                            ? 'bg-rose-100 text-rose-500 border-rose-300/50 shadow-[0_0_10px_rgba(237, 67, 104, 0.91)]'
+                            : 'bg-blue-100 text-blue-500 border-blue-300/50 shadow-[0_0_10px_rgba(14, 84, 236, 0.55)]'
+                            }`}>
+                            {athlete.jersey_number}
+                          </span>
+                        ) : (
+                          <span className="text-zinc-300 italic text-xs">--</span>
+                        )}
+                      </td>
                       <td className="px-8 py-4">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center overflow-hidden">
@@ -177,21 +201,13 @@ const AthleteList = () => {
                           {athlete.status_display}
                         </span>
                       </td>
-                      <td className="px-8 py-4">
-                        <div className="w-32 bg-zinc-100 h-2 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-secondary transition-all duration-1000" 
-                            style={{ width: `${athlete.performance}%` }}
-                          ></div>
-                        </div>
-                      </td>
                       <td className="px-8 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button 
+                          <button
                             onClick={() => openEditModal(athlete)}
                             className="material-symbols-outlined text-zinc-400 hover:text-secondary p-2 transition-colors"
                           >edit</button>
-                          <button 
+                          <button
                             onClick={() => handleDelete(athlete.id)}
                             className="material-symbols-outlined text-zinc-400 hover:text-error p-2 transition-colors"
                           >delete</button>
@@ -206,12 +222,12 @@ const AthleteList = () => {
         </div>
       </div>
 
-      <Modal 
-        isOpen={isModalOpen} 
+      <Modal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={selectedAthlete ? 'Editar Atleta' : 'Nuevo Atleta'}
       >
-        <AthleteForm 
+        <AthleteForm
           athlete={selectedAthlete}
           onSubmit={handleSave}
           onCancel={() => setIsModalOpen(false)}
