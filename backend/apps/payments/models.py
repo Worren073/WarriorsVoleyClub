@@ -32,6 +32,20 @@ class Payment(models.Model):
         ATRASADO = 'atrasado', 'Atrasado'
         CANCELADO = 'cancelado', 'Cancelado'
 
+    class PaymentMethod(models.TextChoices):
+        EFECTIVO = 'efectivo', 'Efectivo'
+        PAGO_MOVIL = 'pago_movil', 'Pago Móvil'
+        TRANSFERENCIA = 'transferencia', 'Transferencia'
+
+    class Currency(models.TextChoices):
+        BS = 'bs', 'Bolívares (Bs)'
+        USD = 'usd', 'Dólares ($)'
+
+    class IDType(models.TextChoices):
+        V = 'V', 'Venezolano'
+        J = 'J', 'Jurídico'
+        E = 'E', 'Extranjero'
+
     athlete = models.ForeignKey(
         Athlete,
         on_delete=models.CASCADE,
@@ -60,6 +74,28 @@ class Payment(models.Model):
         choices=Status.choices,
         default=Status.PENDIENTE,
         verbose_name='Estado',
+    )
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.EFECTIVO,
+        verbose_name='Método de Pago',
+    )
+    currency = models.CharField(
+        max_length=5,
+        choices=Currency.choices,
+        default=Currency.BS,
+        verbose_name='Moneda',
+    )
+    # Pago Móvil / Transferencia details
+    bank = models.CharField(max_length=100, blank=True, verbose_name='Banco')
+    phone_number = models.CharField(max_length=20, blank=True, verbose_name='Teléfono')
+    id_number = models.CharField(max_length=20, blank=True, verbose_name='Cédula/RIF')
+    id_type = models.CharField(
+        max_length=2,
+        choices=IDType.choices,
+        default=IDType.V,
+        verbose_name='Tipo de Documento',
     )
     reference = models.CharField(
         max_length=100,

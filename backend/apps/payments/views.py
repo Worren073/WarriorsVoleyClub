@@ -16,7 +16,12 @@ class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['status', 'plan', 'athlete']
+    filterset_fields = {
+        'status': ['exact'],
+        'plan': ['exact'],
+        'athlete': ['exact'],
+        'created_at': ['month', 'year', 'exact'],
+    }
     search_fields = ['athlete__first_name', 'athlete__last_name', 'reference']
     ordering_fields = ['due_date', 'amount', 'status']
     ordering = ['-due_date']

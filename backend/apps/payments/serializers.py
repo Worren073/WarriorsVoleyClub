@@ -20,6 +20,8 @@ class PaymentSerializer(serializers.ModelSerializer):
             'id', 'athlete', 'athlete_name', 'athlete_id_code',
             'plan', 'plan_name', 'amount', 'due_date', 'payment_date',
             'status', 'status_display', 'reference', 'notes',
+            'payment_method', 'currency', 'bank', 
+            'phone_number', 'id_number', 'id_type',
             'registered_by', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'registered_by', 'created_at', 'updated_at']
