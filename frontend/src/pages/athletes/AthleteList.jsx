@@ -13,9 +13,19 @@ const AthleteList = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  // CRUD State
+  // Categories & CRUD State
+  const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/athletes/categories/');
+      setCategories(response.data.results || response.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchAthletes = async () => {
     setLoading(true);
@@ -34,6 +44,10 @@ const AthleteList = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     fetchAthletes();
@@ -131,10 +145,11 @@ const AthleteList = () => {
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
               <option value="">Todas las Categorías</option>
-              <option value="1">U12</option>
-              <option value="2">U14 Novato</option>
-              <option value="3">U16 Competición</option>
-              <option value="5">U20 Élite</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name} {cat.level_display}
+                </option>
+              ))}
             </select>
           </div>
           <button
@@ -229,6 +244,7 @@ const AthleteList = () => {
       >
         <AthleteForm
           athlete={selectedAthlete}
+          categories={categories}
           onSubmit={handleSave}
           onCancel={() => setIsModalOpen(false)}
         />

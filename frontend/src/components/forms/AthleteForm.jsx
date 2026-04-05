@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const AthleteForm = ({ athlete, onSubmit, onCancel }) => {
+const AthleteForm = ({ athlete, categories = [], onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -132,11 +132,11 @@ const AthleteForm = ({ athlete, onSubmit, onCancel }) => {
             className="w-full px-4 py-3 bg-white border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-secondary/50 outline-none transition-all"
           >
             <option value="">Seleccionar...</option>
-            <option value="1">U12 Academia</option>
-            <option value="2">U14 Novato</option>
-            <option value="3">U16 Competición</option>
-            <option value="4">U18 Élite</option>
-            <option value="5">U20 Élite</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name} {cat.level_display}
+              </option>
+            ))}
           </select>
         </div>
         <div className="space-y-2">
