@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState, useRef, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 const PublicNavbar = () => {
@@ -8,9 +8,47 @@ const PublicNavbar = () => {
   const [isClosing, setIsClosing] = useState(false);
   const dropdownTimer = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   
-  // Condición para mostrar Atletas y Pagos (entrenadores, staff o administradores)
+  // Animation state for sliding underline
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+  const navRefs = useRef({});
+
   const canManage = isAdmin || isCoach || isStaff;
+
+  const navItems = [
+    { name: 'Inicio', path: '/' },
+    ...(canManage ? [
+      { name: 'Atletas', path: '/athletes' },
+      { name: 'Pagos', path: '/payments' }
+    ] : []),
+    { name: 'Horarios', path: '/schedules' },
+    { name: 'Competencias', path: '/competitions' },
+  ];
+
+  React.useLayoutEffect(() => {
+    const updateIndicator = () => {
+      const activeRoute = navItems.find(item => item.path === location.pathname);
+      const container = navRefs.current.container;
+      const activeSpan = navRefs.current[activeRoute?.path];
+
+      if (container && activeSpan) {
+        const containerRect = container.getBoundingClientRect();
+        const spanRect = activeSpan.getBoundingClientRect();
+        
+        setIndicatorStyle({ 
+          left: spanRect.left - containerRect.left, 
+          width: spanRect.width 
+        });
+      } else {
+        setIndicatorStyle({ left: 0, width: 0 });
+      }
+    };
+
+    updateIndicator();
+    window.addEventListener('resize', updateIndicator);
+    return () => window.removeEventListener('resize', updateIndicator);
+  }, [location.pathname, canManage]);
 
   const closeDropdown = () => {
     setIsClosing(true);
@@ -56,43 +94,30 @@ const PublicNavbar = () => {
         Guerreros de Maporal VC
       </Link>
       
-      <div className="hidden md:flex items-center space-x-8 font-bold tracking-tight text-sm uppercase">
-        <Link 
-          to="/" 
-          className="text-zinc-900 border-b-2 border-zinc-900 pb-1"
-        >
-          Inicio
-        </Link>
+      <div 
+        className="hidden md:flex items-center gap-8 font-bold tracking-tight text-sm uppercase relative h-full"
+        ref={el => navRefs.current.container = el}
+      >
+        {navItems.map((item) => (
+          <Link 
+            key={item.path}
+            to={item.path}
+            className={`transition-colors duration-300 relative py-2 ${location.pathname === item.path ? 'text-zinc-900' : 'text-zinc-500 hover:text-zinc-900'}`}
+          >
+            <span ref={el => navRefs.current[item.path] = el}>
+              {item.name}
+            </span>
+          </Link>
+        ))}
         
-        {canManage && (
-          <>
-            <Link 
-              to="/athletes" 
-              className="text-zinc-500 hover:text-zinc-900 transition-colors"
-            >
-              Atletas
-            </Link>
-            <Link 
-              to="/payments" 
-              className="text-zinc-500 hover:text-zinc-900 transition-colors"
-            >
-              Pagos
-            </Link>
-          </>
-        )}
-
-        <Link 
-          to="/schedules" 
-          className="text-zinc-500 hover:text-zinc-900 transition-colors"
-        >
-          Horarios
-        </Link>
-        <Link 
-          to="/competitions" 
-          className="text-zinc-500 hover:text-zinc-900 transition-colors"
-        >
-          Competencias
-        </Link>
+        {/* Sliding Indicator - Elevado ligeramente */}
+        <div 
+          className="absolute bottom-1 h-0.5 bg-zinc-900 transition-all duration-300 ease-out pointer-events-none" 
+          style={{ 
+            left: `${indicatorStyle.left}px`, 
+            width: `${indicatorStyle.width}px` 
+          }}
+        />
       </div>
 
       <div className="flex items-center space-x-4 relative">
